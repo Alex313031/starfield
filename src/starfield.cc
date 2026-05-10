@@ -2,15 +2,7 @@
 
 #include "starfield.h"
 
-#include "constants.h"
 #include "strings.h"
-
-TCHAR szWarpSpeed[] = TEXT("WarpSpeed"); // .INI WarpSpeed key
-TCHAR szDensity[]   = TEXT("Density");   // .INI Density key
-
-LONG nX[MAXSTARS];
-LONG nY[MAXSTARS];
-LONG nZ[MAXSTARS];
 
 WORD wXScreen;
 WORD wYScreen;
@@ -20,27 +12,11 @@ WORD wY2Screen;
 WORD wWarpSpeed; // Global WarpSpeed value
 WORD wDensity;   // Global starfield density value
 
-// Help IDs array
-static DWORD aStarsDlgHelpIds[] = {static_cast<DWORD>(-1),
-                                   static_cast<DWORD>(-1),
-                                   ID_SPEED_SLOW,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_WARP,
-                                   ID_SPEED_FAST,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_WARP,
-                                   ID_SPEED,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_WARP,
-                                   ID_DENSITY_LABEL,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_DENSITY,
-                                   ID_DENSITY,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_DENSITY,
-                                   ID_DENSITYARROW,
-                                   IDH_DISPLAY_SCREENSAVER_STARFIELD_DENSITY,
-                                   0,
-                                   0};
-
-static constexpr bool fill_bkgrnd = false;
-
-static void CreateStar(WORD wIndex);
+// On-screen size (in pixels) of a star at its closest approach to the camera.
+// Stars farther away render smaller, scaling linearly down to MIN_STARSIZE at
+// the back of the field. Defaults of 5 / 1 match the original screensaver.
+int STARSIZE     = 10;
+int MIN_STARSIZE = 1;
 
 /* This is the main window procedure to be used when the screen saver is
     activated in a screen saver mode ( as opposed to configure mode ). */
@@ -95,7 +71,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                  wX2Screen;
         nYTemp =
             static_cast<int>((nY[wLoop] * SCOPE * WARPFACTOR) / DIVIDE_SAFE(nZ[wLoop])) + wY2Screen;
-        nTemp = static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) / (SIZE * WARPFACTOR)) + 1;
+        nTemp = MIN_STARSIZE + static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) *
+                                                (STARSIZE - MIN_STARSIZE) / (SCOPE * WARPFACTOR));
         PatBlt(hDC, nXTemp, nYTemp, nTemp, nTemp, BLACKNESS);
 
         if (wCurrentWarp < wWarp) {
@@ -123,7 +100,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
           nYTemp = static_cast<int>((nY[wLoop] * SCOPE * WARPFACTOR) / DIVIDE_SAFE(nZ[wLoop])) +
                    wY2Screen;
         }
-        nTemp = static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) / (SIZE * WARPFACTOR)) + 1;
+        nTemp = MIN_STARSIZE + static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) *
+                                                (STARSIZE - MIN_STARSIZE) / (SCOPE * WARPFACTOR));
         PatBlt(hDC, nXTemp, nYTemp, nTemp, nTemp, WHITENESS);
       }
       ReleaseDC(hWnd, hDC);
@@ -173,7 +151,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
       }
       break;
   }
-  return (DefScreenSaverProc(hWnd, message, wParam, lParam));
+  return DefScreenSaverProc(hWnd, message, wParam, lParam);
 }
 
 // Dialog procedure for the configuration dialog
@@ -211,7 +189,7 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
         SendDlgItemMessage(hDlg, ID_DENSITYARROW, UDM_SETRANGE, 0,
                            MAKELONG(lMaxScroll, lMinScroll));
 
-        SetScrollRange(hWarpSpeed, SB_CTL, MINWARP, MAXWARP, FALSE);
+        SetScrollRange(hWarpSpeed, SB_CTL, MINWARP, MINWARP + CLICKRANGE, FALSE);
         SetScrollPos(hWarpSpeed, SB_CTL, wWarpSpeed, TRUE);
 
         SetDlgItemInt(hDlg, ID_DENSITY, wDensity, FALSE);
@@ -299,16 +277,33 @@ WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst) {
   return true;
 }
 
-static void CreateStar(WORD wIndex) {
-  nX[wIndex] =
-      wXScreen ? static_cast<LONG>(static_cast<int>(ZRAND(wXScreen)) - static_cast<int>(wX2Screen))
-               : 0;
-  nY[wIndex] =
-      wXScreen ? static_cast<LONG>(static_cast<int>(ZRAND(wYScreen)) - static_cast<int>(wY2Screen))
-               : 0;
-  nZ[wIndex] = SCOPE * WARPFACTOR;
+// Load our settings from control.ini
+void GetIniEntries() {
+  LoadString(hMainInstance, idsName, szName, CharSizeOf(szName));
+  LoadString(hMainInstance, idsAppName, szAppName, CharSizeOf(szAppName));
+
+  // Load Common Strings from stringtable...
+  LoadString(hMainInstance, idsIniFile, szIniFile, CharSizeOf(szIniFile));
+  LoadString(hMainInstance, idsScreenSaver, szScreenSaver, CharSizeOf(szScreenSaver));
+  LoadString(hMainInstance, idsHelpFile, szHelpFile, CharSizeOf(szHelpFile));
+  LoadString(hMainInstance, idsNoHelpMemory, szNoHelpMemory, CharSizeOf(szNoHelpMemory));
+
+  wWarpSpeed = static_cast<WORD>(
+      GetPrivateProfileInt(szAppName, szWarpSpeed, MINWARP + ((MAXWARP - MINWARP) / 2), szIniFile));
+  if (wWarpSpeed > MAXWARP) {
+    wWarpSpeed = MINWARP + ((MAXWARP - MINWARP) / 2);
+  }
+
+  wDensity = static_cast<WORD>(GetPrivateProfileInt(szAppName, szDensity, DEFSTARS, szIniFile));
+  if (wDensity > MAXSTARS) {
+    wDensity = MAXSTARS;
+  }
+  if (wDensity < MINSTARS) {
+    wDensity = MINSTARS;
+  }
 }
 
+// Original experimental code
 [[maybe_unused]] LONG GetDlgItemLong(HWND hDlg, WORD wID, bool* pfTranslated, bool fSigned) {
   TCHAR szTemp[20];
   LPTSTR pszTemp;
@@ -345,6 +340,7 @@ GetDlgItemLongError:
   return 0l;
 }
 
+// We use GetPrivateProfileInt, but this is a deprecated helper
 [[maybe_unused]] LONG GetPrivateProfileLong(LPTSTR pszApp, LPTSTR pszKey, LONG lDefault) {
   LONG lTemp = 0l;
   TCHAR szTemp[20];
@@ -363,33 +359,4 @@ GetDlgItemLongError:
     return lDefault;
   }
   return lTemp;
-}
-
-void GetIniEntries() {
-  LoadString(hMainInstance, idsName, szName, CharSizeOf(szName));
-  LoadString(hMainInstance, idsAppName, szAppName, CharSizeOf(szAppName));
-
-  // Load Common Strings from stringtable...
-  LoadString(hMainInstance, idsIniFile, szIniFile, CharSizeOf(szIniFile));
-  LoadString(hMainInstance, idsScreenSaver, szScreenSaver, CharSizeOf(szScreenSaver));
-  LoadString(hMainInstance, idsHelpFile, szHelpFile, CharSizeOf(szHelpFile));
-  LoadString(hMainInstance, idsNoHelpMemory, szNoHelpMemory, CharSizeOf(szNoHelpMemory));
-
-  wWarpSpeed = static_cast<WORD>(
-      GetPrivateProfileInt(szAppName, szWarpSpeed, MINWARP + ((MAXWARP - MINWARP) / 2), szIniFile));
-  if (wWarpSpeed > MAXWARP) {
-    wWarpSpeed = MINWARP + ((MAXWARP - MINWARP) / 2);
-  }
-
-  wDensity = static_cast<WORD>(GetPrivateProfileInt(szAppName, szDensity, DEFSTARS, szIniFile));
-  if (wDensity > MAXSTARS) {
-    wDensity = MAXSTARS;
-  }
-  if (wDensity < MINSTARS) {
-    wDensity = MINSTARS;
-  }
-}
-
-void ssrand(DWORD dwSeed) {
-  ::srand(static_cast<unsigned int>(dwSeed));
 }

@@ -18,6 +18,8 @@ executable("starfield") {
     "src/starfield.cc",
     "src/starfield.h",
     "src/starfield.rc",
+    "src/stars.cc",
+    "src/stars.h",
     "src/strings.h",
     "src/version.h",
   ]

@@ -1,17 +1,59 @@
+// Microsoft Visual C++ generated resource script.
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+// Generated from the TEXTINCLUDE resource.
+
+#include "version.h"
+
+#define APSTUDIO_HIDDEN_SYMBOLS
 #include <windows.h>
 #include <scrnsave.h>
 #include <commctrl.h>
+#undef APSTUDIO_HIDDEN_SYMBOLS
 
-#include "resource.h"
-#include "version.h"
+#include <winres.h>
 
-// Icons
-IDI_MAIN  ICON  "res/stars.ico"
-IDI_SMALL ICON  "res/small.ico"
+#ifdef __MINGW32__
+#include <winuser.h>
+#endif // __MINGW32__
+
+#undef APSTUDIO_READONLY_SYMBOLS
 
 #if defined(__MINGW32__) || defined(__clang__)
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res/starfield.manifest"
 #endif // __MINGW32__
+
+// Application Icons
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MAIN  ICON  "res/stars.ico"
+IDI_SMALL ICON  "res/small.ico"
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+#endif
+
+#ifdef APSTUDIO_INVOKED
+
+1 TEXTINCLUDE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""version.h""\r\n"
+    "#endif\r\n"
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+#endif // APSTUDIO_INVOKED
 
 STRINGTABLE PRELOAD
 BEGIN
