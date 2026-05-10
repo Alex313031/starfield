@@ -1,0 +1,42 @@
+# Copyright (c) 2026 Alex313031
+
+executable("starfield") {
+  # Remove default -municode flags
+  configs -= [ "//build/config/win:unicode", ]
+  configs += [
+    # Re-add Unicode defines/cflags after removing them above
+    "//build/config/win:unicode_base",
+    # Can't use -municode even for Unicode screensavers due to entry point, use -mwindows
+    "//build/config/win:mwindows",
+    # Private config
+    ":starfield_config",
+  ]
+  sources = [
+    "src/constants.h",
+    "src/framework.h",
+    "src/resource.h",
+    "src/starfield.cc",
+    "src/starfield.h",
+    "src/starfield.rc",
+    "src/strings.h",
+    "src/version.h",
+  ]
+  # Use .scr, not .exe
+  output_extension = "scr"
+}
+
+config("starfield_config") {
+  defines = []
+  include_dirs = [ "./src", ]
+  cflags = [
+    "-Wunused-function",
+  ]
+  libs = [
+    "kernel32",
+    "user32",
+    "shell32",
+    "comctl32",
+    "scrnsavw",
+    "gdi32",
+  ]
+}
