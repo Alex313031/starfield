@@ -91,9 +91,9 @@ BEGIN
     CONTROL "", IDC_DENSITYARROW, UPDOWN_CLASS, WS_TABSTOP | UDS_WRAP | UDS_SETBUDDYINT |
                                                 UDS_ALIGNRIGHT | UDS_ARROWKEYS, 136, 54, 8, 12
     GROUPBOX "Colors",                  IDC_STATIC,         4,   75, 150, 30
-    PUSHBUTTON "&Star Color",           IDC_STARCOLOR,      8,   86, 50, 14, WS_TABSTOP
+    PUSHBUTTON "Star Color",            IDC_STARCOLOR,      8,   86, 50, 14, WS_TABSTOP
     LTEXT "",                           IDC_STARSWATCH,     60,  88, 12, 10, SS_LEFT | WS_BORDER
-    PUSHBUTTON "&Space Color",          IDC_BKGCOLOR,       78,  86, 50, 14, WS_TABSTOP
+    PUSHBUTTON "Space Color",           IDC_BKGCOLOR,       78,  86, 50, 14, WS_TABSTOP
     LTEXT "",                           IDC_BKGSWATCH,      130, 88, 12, 10, SS_LEFT | WS_BORDER
 END
 
