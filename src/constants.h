@@ -21,6 +21,11 @@ inline constexpr int DEFWARP = MINWARP + ((MAXWARP - MINWARP) / 2);
 // Speed multiplier
 inline constexpr int WARPFACTOR = 10; // Warp Factor 10 Mr. Sulu!
 
+// Divides the per-tick z-step so faster timer rates don't make stars
+// teleport. Scale this with MINTIMERSPEED: roughly (original_ms / new_ms),
+// e.g. 50ms → ~17ms is ~3x faster, so divide each step by 3.
+inline constexpr int WARP_STEP_DIVISOR = 3;
+
 // Minimum window timer speed in milliseconds
 inline constexpr int MINTIMERSPEED = static_cast<int>(16.7f); // ~60 FPS
 

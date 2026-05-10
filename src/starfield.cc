@@ -38,7 +38,9 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
       for (WORD wLoop = 0; wLoop < wDensity; wLoop++) {
         CreateStar(wLoop);
       }
-      wWarp = wWarpSpeed * WARPFACTOR + WARPFACTOR; // ZRAND (((wWarpSpeed)*WARPFACTOR)+1)+1;
+      // Divide by WARP_STEP_DIVISOR so each tick advances the field a
+      // smaller, smoother amount — compensates for the high-FPS timer.
+      wWarp = (wWarpSpeed * WARPFACTOR + WARPFACTOR) / WARP_STEP_DIVISOR;
 
       wTimer = SetTimer(hWnd, 1, wTimerSet, NULL);
       break;
