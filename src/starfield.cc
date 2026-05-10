@@ -12,28 +12,17 @@ WORD wY2Screen;
 WORD wWarpSpeed; // Global WarpSpeed value
 WORD wDensity;   // Global starfield density value
 
-// On-screen size (in pixels) of a star at its closest approach to the camera.
-// Stars farther away render smaller, scaling linearly down to MIN_STARSIZE at
-// the back of the field. Defaults of 5 / 1 match the original screensaver.
-int STARSIZE     = 10;
-int MIN_STARSIZE = 1;
-
 /* This is the main window procedure to be used when the screen saver is
     activated in a screen saver mode ( as opposed to configure mode ). */
 LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-  RECT rRect;
-  WORD wLoop;
   static UINT_PTR wTimer;
   static WORD wWarp;
   static WORD wTimerSet = MINTIMERSPEED;
-  static WORD wCurrentWarp;
   static int nPassCount = 0;
-  int nXTemp, nYTemp, nTemp;
   bool fHyperSpace = false;
-  HDC hDC;
 
   switch (message) {
-    case WM_CREATE:
+    case WM_CREATE: {
       /* Do anything that you need to do when you initialize the window
          here... */
       GetIniEntries();
@@ -46,13 +35,14 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
       wX2Screen = wXScreen / 2;
       wY2Screen = wYScreen / 2;
-      for (wLoop = 0; wLoop < wDensity; wLoop++) {
+      for (WORD wLoop = 0; wLoop < wDensity; wLoop++) {
         CreateStar(wLoop);
       }
       wWarp = wWarpSpeed * WARPFACTOR + WARPFACTOR; // ZRAND (((wWarpSpeed)*WARPFACTOR)+1)+1;
 
       wTimer = SetTimer(hWnd, 1, wTimerSet, NULL);
       break;
+    }
 
     case WM_SIZE:
       wXScreen = LOWORD(lParam);
@@ -61,50 +51,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 
     case WM_TIMER: {
       MSG msg;
-
-      hDC = GetDC(hWnd);
-      /* Begin to loop through each star, accelerating so it seems that
-         we are traversing the starfield... */
-      for (wLoop = 0; wLoop < wDensity; wLoop++) {
-        nXTemp = static_cast<int>((nX[wLoop] * static_cast<LONG>(SCOPE * WARPFACTOR)) /
-                                  DIVIDE_SAFE(nZ[wLoop])) +
-                 wX2Screen;
-        nYTemp =
-            static_cast<int>((nY[wLoop] * SCOPE * WARPFACTOR) / DIVIDE_SAFE(nZ[wLoop])) + wY2Screen;
-        nTemp = MIN_STARSIZE + static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) *
-                                                (STARSIZE - MIN_STARSIZE) / (SCOPE * WARPFACTOR));
-        PatBlt(hDC, nXTemp, nYTemp, nTemp, nTemp, BLACKNESS);
-
-        if (wCurrentWarp < wWarp) {
-          wCurrentWarp++;
-        } else if (wCurrentWarp > wWarp) {
-          wCurrentWarp--;
-        }
-
-        nZ[wLoop] = std::max(0, static_cast<int>(nZ[wLoop] - wCurrentWarp));
-        if (!nZ[wLoop]) {
-          CreateStar(wLoop);
-        }
-
-        nXTemp = static_cast<int>((nX[wLoop] * static_cast<LONG>(SCOPE * WARPFACTOR)) /
-                                  DIVIDE_SAFE(nZ[wLoop])) +
-                 wX2Screen;
-        nYTemp =
-            static_cast<int>((nY[wLoop] * SCOPE * WARPFACTOR) / DIVIDE_SAFE(nZ[wLoop])) + wY2Screen;
-        if ((nXTemp < 0 || nYTemp < 0) ||
-            (nXTemp > static_cast<int>(wXScreen) || nYTemp > static_cast<int>(wYScreen))) {
-          CreateStar(wLoop);
-          nXTemp = static_cast<int>((nX[wLoop] * static_cast<LONG>(SCOPE * WARPFACTOR)) /
-                                    DIVIDE_SAFE(nZ[wLoop])) +
-                   wX2Screen;
-          nYTemp = static_cast<int>((nY[wLoop] * SCOPE * WARPFACTOR) / DIVIDE_SAFE(nZ[wLoop])) +
-                   wY2Screen;
-        }
-        nTemp = MIN_STARSIZE + static_cast<int>((SCOPE * WARPFACTOR - nZ[wLoop]) *
-                                                (STARSIZE - MIN_STARSIZE) / (SCOPE * WARPFACTOR));
-        PatBlt(hDC, nXTemp, nYTemp, nTemp, nTemp, WHITENESS);
-      }
-      ReleaseDC(hWnd, hDC);
+      DrawStars(hWnd, wWarp);
 
       if (PeekMessage(&msg, hWnd, WM_TIMER, WM_TIMER, PM_REMOVE)) {
         // There is another WM_TIMER message in the queue.  We have
@@ -129,22 +76,17 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
       break;
     }
 
-    case WM_ERASEBKGND:
-      /* If you want something put on the background, do it right here
-          using wParam as a handle to a device context.  Remember to
-          unrealize a brush if it is not a solid color.  If you do
-          something here, you want to use the line:
-              return 0l;
-          So the program knows not to take the default action. Otherwise
-          just use:
-              break; */
-      if (fill_bkgrnd) {
-        GetClientRect(hWnd, &rRect);
-        FillRect(reinterpret_cast<HDC>(wParam), &rRect,
-                 static_cast<HBRUSH>(GetStockObject(GRAY_BRUSH)));
-        return 0l;
-      }
-      break;
+    case WM_ERASEBKGND: {
+      // Fill the entire client area with the configured "outer space"
+      // color so the field starts (and stays, where stars haven't drawn)
+      // the user-chosen color rather than the system default.
+      RECT rRect;
+      GetClientRect(hWnd, &rRect);
+      HBRUSH hBrush = CreateSolidBrush(g_bkg_color);
+      FillRect(reinterpret_cast<HDC>(wParam), &rRect, hBrush);
+      DeleteObject(hBrush);
+      return 1l;
+    }
     case WM_DESTROY:
       if (wTimer) {
         KillTimer(hWnd, wTimer);
@@ -154,12 +96,16 @@ LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
   return DefScreenSaverProc(hWnd, message, wParam, lParam);
 }
 
+// Brushes backing the color swatches next to the picker buttons. Recreated
+// whenever the underlying global color changes; freed on WM_DESTROY.
+static HBRUSH g_hStarSwatch = nullptr;
+static HBRUSH g_hBkgSwatch  = nullptr;
+
 // Dialog procedure for the configuration dialog
 WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
   BOOL fError; // Error flag
 
-  UINT wTemp;
-  TCHAR szTemp[1025]; // Temporary string buffer (safe size for wsprintf)
+  UINT wTemp; // temp int storage
 
   // static WORD wPause, wScroll;         // unused
   static HWND hWarpSpeed; // window handle of Speed scrollbar
@@ -177,24 +123,40 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
 
   switch (message) {
     case WM_INITDIALOG:
+      static const HICON kIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_SMALL));
+      SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)kIcon);
+      SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)kIcon);
       GetIniEntries();
-      hWarpSpeed = GetDlgItem(hDlg, ID_SPEED);
+      hWarpSpeed = GetDlgItem(hDlg, IDC_SPEED);
       hIDOK      = GetDlgItem(hDlg, IDOK);
       if (hIDOK != nullptr) {
-        hDensity = GetDlgItem(hDlg, ID_DENSITY);
+        hDensity = GetDlgItem(hDlg, IDC_DENSITY);
         SendMessage(hDensity, EM_LIMITTEXT, 3, 0);
 
-        SendDlgItemMessage(hDlg, ID_DENSITYARROW, UDM_SETBUDDY, reinterpret_cast<WPARAM>(hDensity),
+        SendDlgItemMessage(hDlg, IDC_DENSITYARROW, UDM_SETBUDDY, reinterpret_cast<WPARAM>(hDensity),
                            0);
-        SendDlgItemMessage(hDlg, ID_DENSITYARROW, UDM_SETRANGE, 0,
+        SendDlgItemMessage(hDlg, IDC_DENSITYARROW, UDM_SETRANGE, 0,
                            MAKELONG(lMaxScroll, lMinScroll));
 
         SetScrollRange(hWarpSpeed, SB_CTL, MINWARP, MINWARP + CLICKRANGE, FALSE);
         SetScrollPos(hWarpSpeed, SB_CTL, wWarpSpeed, TRUE);
 
-        SetDlgItemInt(hDlg, ID_DENSITY, wDensity, FALSE);
+        SetDlgItemInt(hDlg, IDC_DENSITY, wDensity, FALSE);
       }
+      RefreshSwatches(hDlg);
       return true;
+    case WM_CTLCOLORSTATIC: {
+      // Paint each swatch's background with its corresponding color brush;
+      // the static is empty-text so the brush fills the whole client area.
+      const int id = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
+      if (id == IDC_STARSWATCH) return reinterpret_cast<INT_PTR>(g_hStarSwatch);
+      if (id == IDC_BKGSWATCH)  return reinterpret_cast<INT_PTR>(g_hBkgSwatch);
+      break;
+    }
+    case WM_DESTROY:
+      if (g_hStarSwatch) { DeleteObject(g_hStarSwatch); g_hStarSwatch = nullptr; }
+      if (g_hBkgSwatch)  { DeleteObject(g_hBkgSwatch);  g_hBkgSwatch  = nullptr; }
+      break;
     case WM_HSCROLL:
       switch (LOWORD(wParam)) {
         case SB_LINEUP:
@@ -234,24 +196,69 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
       break;
     case WM_COMMAND:
       switch (LOWORD(wParam)) {
-        case ID_DENSITY:
+        case IDC_DENSITY:
           if (HIWORD(wParam) == EN_UPDATE) {
-            wTemp  = GetDlgItemInt(hDlg, ID_DENSITY, &fError, FALSE);
+            wTemp  = GetDlgItemInt(hDlg, IDC_DENSITY, &fError, FALSE);
             fError = ((wTemp <= MAXSTARS) && (wTemp >= MINSTARS));
-            EnableWindow(GetDlgItem(hDlg, ID_DENSITYARROW), fError);
+            EnableWindow(GetDlgItem(hDlg, IDC_DENSITYARROW), fError);
             EnableWindow(GetDlgItem(hDlg, IDOK), fError);
           }
           break;
+        case IDC_STARCOLOR:
+        case IDC_BKGCOLOR: {
+          // Common-dialog color picker. Custom colors are kept static so the
+          // user's palette persists across both buttons within one session.
+          static COLORREF custColors[16] = {0};
+          COLORREF& target =
+              (LOWORD(wParam) == IDC_STARCOLOR) ? g_star_color : g_bkg_color;
+          CHOOSECOLOR cc{};
+          cc.lStructSize  = sizeof(cc);
+          cc.hwndOwner    = hDlg;
+          cc.lpCustColors = custColors;
+          cc.rgbResult    = target;
+          cc.Flags        = CC_FULLOPEN | CC_RGBINIT | CC_ANYCOLOR;
+          if (ChooseColor(&cc)) {
+            target = cc.rgbResult;
+            RefreshSwatches(hDlg);
+          }
+          return true;
+        }
+        case IDC_PREVIEW: {
+          if (!SaveSettings(hDlg)) {
+            return true;
+          }
+          // Re-launch this .scr in fullscreen screensaver mode (/s) — the
+          // same invocation the OS uses when the screensaver activates.
+          // Config dialog stays open in the background; ESC/mouse exits.
+          TCHAR szPath[MAX_PATH];
+          if (GetModuleFileName(nullptr, szPath, MAX_PATH)) {
+            TCHAR szCmd[MAX_PATH + 16];
+            wsprintf(szCmd, TEXT("\"%s\" /s"), szPath);
+            STARTUPINFO si{};
+            si.cb = sizeof(si);
+            PROCESS_INFORMATION pi{};
+            if (CreateProcess(nullptr, szCmd, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si,
+                              &pi)) {
+              CloseHandle(pi.hProcess);
+              CloseHandle(pi.hThread);
+            }
+          }
+          return true;
+        }
+        case IDC_DEFAULTS:
+          if (!SaveSettings(hDlg, true)) {
+            MessageBox(hDlg, TEXT("Failed to save settings!"), TEXT("Config Error"), MB_OK | MB_ICONWARNING);
+            return true;
+          }
+          RefreshSwatches(hDlg);
+          return true;
         case IDOK:
-          wTemp = GetDlgItemInt(hDlg, ID_DENSITY, &fError, FALSE);
-          wsprintf(szTemp, TEXT("%d"), wTemp);
-          WritePrivateProfileString(szAppName, szDensity, szTemp, szIniFile);
-          wsprintf(szTemp, TEXT("%d"), wWarpSpeed);
-          WritePrivateProfileString(szAppName, szWarpSpeed, szTemp, szIniFile);
-          EndDialog(hDlg, LOWORD(wParam) == IDOK);
+          if (SaveSettings(hDlg)) {
+            EndDialog(hDlg, LOWORD(wParam) == IDOK);
+          }
           return true;
         case IDCANCEL:
-          EndDialog(hDlg, LOWORD(wParam) == IDOK);
+          EndDialog(hDlg, LOWORD(wParam) == IDCANCEL);
           return true;
       }
       break;
@@ -277,8 +284,47 @@ WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst) {
   return true;
 }
 
+bool SaveSettings(HWND hDlg, bool reset) {
+  UINT dlg;
+  BOOL fError;
+  TCHAR szTemp[1025]; // Temporary string buffer (safe size for wsprintf)
+
+  dlg = GetDlgItemInt(hDlg, IDC_DENSITY, &fError, FALSE);
+  if (!fError) {
+    return false;
+  }
+
+  if (reset) {
+    // Restore every persisted setting to its compile-time default. We mutate
+    // the in-memory globals first, then sync the dialog controls so the user
+    // sees the change, then fall through into the normal save path so .ini
+    // is rewritten with the defaults too.
+    wDensity     = DEFSTARS;
+    wWarpSpeed   = DEFWARP;
+    g_star_color = RGB_STAR;
+    g_bkg_color  = RGB_BLACK;
+    SetDlgItemInt(hDlg, IDC_DENSITY, wDensity, FALSE);
+    SetScrollPos(GetDlgItem(hDlg, IDC_SPEED), SB_CTL, wWarpSpeed, TRUE);
+  }
+
+  if (g_star_color == g_bkg_color) {
+    MessageBox(hDlg, TEXT("Star color and space color cannot be the same."), TEXT("Colors Mismatch"), MB_OK | MB_ICONWARNING);
+    return false;
+  }
+
+  wsprintf(szTemp, TEXT("%d"), dlg);
+  const bool wroteDensity = WritePrivateProfileString(szAppName, szDensity, szTemp, szIniFile);
+  wsprintf(szTemp, TEXT("%d"), wWarpSpeed);
+  const bool wroteSpeed = WritePrivateProfileString(szAppName, szWarpSpeed, szTemp, szIniFile);
+  wsprintf(szTemp, TEXT("%lu"), static_cast<unsigned long>(g_star_color));
+  const bool wroteStarColor = WritePrivateProfileString(szAppName, szStarColor, szTemp, szIniFile);
+  wsprintf(szTemp, TEXT("%lu"), static_cast<unsigned long>(g_bkg_color));
+  const bool wroteBkgColor = WritePrivateProfileString(szAppName, szBkgColor, szTemp, szIniFile);
+  return wroteDensity && wroteSpeed && wroteStarColor && wroteBkgColor;
+}
+
 // Load our settings from control.ini
-void GetIniEntries() {
+static void GetIniEntries() {
   LoadString(hMainInstance, idsName, szName, CharSizeOf(szName));
   LoadString(hMainInstance, idsAppName, szAppName, CharSizeOf(szAppName));
 
@@ -288,10 +334,10 @@ void GetIniEntries() {
   LoadString(hMainInstance, idsHelpFile, szHelpFile, CharSizeOf(szHelpFile));
   LoadString(hMainInstance, idsNoHelpMemory, szNoHelpMemory, CharSizeOf(szNoHelpMemory));
 
-  wWarpSpeed = static_cast<WORD>(
-      GetPrivateProfileInt(szAppName, szWarpSpeed, MINWARP + ((MAXWARP - MINWARP) / 2), szIniFile));
+  wWarpSpeed =
+      static_cast<WORD>(GetPrivateProfileInt(szAppName, szWarpSpeed, DEFWARP, szIniFile));
   if (wWarpSpeed > MAXWARP) {
-    wWarpSpeed = MINWARP + ((MAXWARP - MINWARP) / 2);
+    wWarpSpeed = DEFWARP;
   }
 
   wDensity = static_cast<WORD>(GetPrivateProfileInt(szAppName, szDensity, DEFSTARS, szIniFile));
@@ -301,6 +347,24 @@ void GetIniEntries() {
   if (wDensity < MINSTARS) {
     wDensity = MINSTARS;
   }
+
+  // COLORREF is 0x00BBGGRR (max 0x00FFFFFF), well below INT_MAX, so the
+  // signed-int return from GetPrivateProfileInt round-trips cleanly.
+  g_star_color = static_cast<COLORREF>(
+      GetPrivateProfileInt(szAppName, szStarColor, RGB_STAR, szIniFile));
+  g_bkg_color = static_cast<COLORREF>(
+      GetPrivateProfileInt(szAppName, szBkgColor, RGB_BLACK, szIniFile));
+}
+
+// Rebuild swatch brushes from the current g_*_color globals and force the
+// two static controls to repaint so they pick up the new brushes.
+static void RefreshSwatches(HWND hDlg) {
+  if (g_hStarSwatch) DeleteObject(g_hStarSwatch);
+  if (g_hBkgSwatch)  DeleteObject(g_hBkgSwatch);
+  g_hStarSwatch = CreateSolidBrush(g_star_color);
+  g_hBkgSwatch  = CreateSolidBrush(g_bkg_color);
+  InvalidateRect(GetDlgItem(hDlg, IDC_STARSWATCH), nullptr, TRUE);
+  InvalidateRect(GetDlgItem(hDlg, IDC_BKGSWATCH), nullptr, TRUE);
 }
 
 // Original experimental code

@@ -39,6 +39,7 @@ config("starfield_config") {
     "user32",
     "shell32",
     "comctl32",
+    "comdlg32",
     "scrnsavw",
     "gdi32",
   ]

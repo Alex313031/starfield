@@ -8,6 +8,7 @@
 
 #include <windows.h>  // Main Windows header
 #include <commctrl.h> // Common Controls
+#include <commdlg.h>  // Common Dialogs (ChooseColor)
 
 #include <scrnsave.h> // Screensaver header
 

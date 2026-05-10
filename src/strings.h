@@ -3,7 +3,10 @@
 
 #include "framework.h"
 
-const TCHAR szWarpSpeed[] = TEXT("WarpSpeed"); // .INI WarpSpeed key
-const TCHAR szDensity[]   = TEXT("Density");   // .INI Density key
+// .INI settings file constants.
+inline constexpr TCHAR szWarpSpeed[] = TEXT("WarpSpeed"); // .ini WarpSpeed key
+inline constexpr TCHAR szDensity[]   = TEXT("Density");   // .ini Density key
+inline constexpr TCHAR szStarColor[] = TEXT("StarColor"); // .ini Star Color key
+inline constexpr TCHAR szBkgColor[]  = TEXT("SpaceColor"); // .ini Background Color key
 
 #endif // STARFIELD_STRINGS_H_

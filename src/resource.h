@@ -11,14 +11,20 @@
 #define idsDescription   201
 
 // Options
-#define ID_SPEED         300
-#define ID_DENSITY       301
-#define ID_DENSITYARROW  302
-#define ID_SPEED_SLOW    304
-#define ID_SPEED_FAST    305
-#define ID_DENSITY_LABEL 306
+#define IDC_SPEED         300 // Speed scrollbar
+#define IDC_SPEED_SLOW    301 // "Slower" label
+#define IDC_SPEED_FAST    302 // "Faster" label
+#define IDC_DENSITY_LABEL 303 // "Density" label
+#define IDC_DENSITY       304 // Density manual input edit control
+#define IDC_DENSITYARROW  305 // Density arrow button
+#define IDC_STARCOLOR     307 // Star color picker
+#define IDC_BKGCOLOR      308 // Space color picker
+#define IDC_DEFAULTS      309 // Reset all settings to defaults
+#define IDC_STARSWATCH    310 // Filled rect next to Star Color button
+#define IDC_BKGSWATCH     311 // Filled rect next to Space Color button
 
-// Dialogs
+#define IDC_PREVIEW       400 // Preview button to launch ScreenSaverProc
+
 #ifndef DLG_SCRNSAVECONFIGURE
  #define DLG_SCRNSAVECONFIGURE 2003 // Keep 2003
 #endif
