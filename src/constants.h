@@ -13,7 +13,7 @@
 #define CLICKRANGE (MAXWARP - MINWARP) // Range for WarpSpeed scroll bar
 
 inline constexpr int MINSTARS = 1;   // Minimum number of stars in field
-inline constexpr int MAXSTARS = 200; // Maximum number of stars in field
+inline constexpr int MAXSTARS = 500; // Maximum number of stars in field
 inline constexpr int DEFSTARS = 25;  // Default number of stars in field
 
 // Speec multiplier

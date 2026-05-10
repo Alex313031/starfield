@@ -70,7 +70,7 @@
 // Adhere to semver > semver.org
 #define MAJOR_VERSION 1
 #define MINOR_VERSION 0
-#define BUILD_VERSION 1
+#define BUILD_VERSION 2
 
 // String constants
 #define VERSION_STRING _VERSION(MAJOR_VERSION, MINOR_VERSION, BUILD_VERSION)
@@ -81,7 +81,7 @@
 #define COMMENTS        L"https://github.com/Alex313031/starfield" // Project GitHub URL
 #define COMPANYNAME     L"Alex313031" // My developer name
 #define FILE_DESCRIPT   L"Starfield Simulation Screensaver" // File description
-#define INTERNAL_NAME   L"starfield" // "Internal" name, also used for .exe name
+#define INTERNAL_NAME   L"starfield-ng" // "Internal" name, also used for .exe name
 #define ORIG_FILENAME   INTERNAL_NAME L".exe" // Generated .exe file name
 #define PRODUCT_NAME    APP_NAME // Product name
 #define TRADEMARKS      L"BSD-3" // License

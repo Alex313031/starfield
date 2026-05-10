@@ -217,7 +217,6 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
         SetDlgItemInt(hDlg, ID_DENSITY, wDensity, FALSE);
       }
       return true;
-
     case WM_HSCROLL:
       switch (LOWORD(wParam)) {
         case SB_LINEUP:
@@ -253,10 +252,8 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
       if (static_cast<int>(wWarpSpeed) >= MAXWARP) {
         wWarpSpeed = MAXWARP;
       }
-
       SetScrollPos(reinterpret_cast<HWND>(lParam), SB_CTL, wWarpSpeed, TRUE);
       break;
-
     case WM_COMMAND:
       switch (LOWORD(wParam)) {
         case ID_DENSITY:
@@ -267,7 +264,6 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
             EnableWindow(GetDlgItem(hDlg, IDOK), fError);
           }
           break;
-
         case IDOK:
           wTemp = GetDlgItemInt(hDlg, ID_DENSITY, &fError, FALSE);
           wsprintf(szTemp, TEXT("%d"), wTemp);
@@ -276,23 +272,19 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
           WritePrivateProfileString(szAppName, szWarpSpeed, szTemp, szIniFile);
           EndDialog(hDlg, LOWORD(wParam) == IDOK);
           return true;
-
         case IDCANCEL:
           EndDialog(hDlg, LOWORD(wParam) == IDOK);
           return true;
       }
       break;
-
     case WM_HELP: // F1
       WinHelp(static_cast<HWND>(reinterpret_cast<LPHELPINFO>(lParam)->hItemHandle), szHelpFile,
               HELP_WM_HELP, reinterpret_cast<ULONG_PTR>(reinterpret_cast<LPSTR>(aStarsDlgHelpIds)));
       break;
-
     case WM_CONTEXTMENU:
       WinHelp(reinterpret_cast<HWND>(wParam), szHelpFile, HELP_CONTEXTMENU,
               reinterpret_cast<ULONG_PTR>(reinterpret_cast<LPSTR>(aStarsDlgHelpIds)));
       break;
-
     default:
       break;
   }
