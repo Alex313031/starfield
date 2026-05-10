@@ -40,6 +40,8 @@ static DWORD aStarsDlgHelpIds[] = {static_cast<DWORD>(-1),
 
 static constexpr bool fill_bkgrnd = false;
 
+static void CreateStar(WORD wIndex);
+
 /* This is the main window procedure to be used when the screen saver is
     activated in a screen saver mode ( as opposed to configure mode ). */
 LRESULT WINAPI ScreenSaverProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -305,11 +307,7 @@ WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst) {
   return true;
 }
 
-VOID ssrand(DWORD dwSeed) {
-  ::srand(static_cast<unsigned int>(dwSeed));
-}
-
-VOID CreateStar(WORD wIndex) {
+static void CreateStar(WORD wIndex) {
   nX[wIndex] =
       wXScreen ? static_cast<LONG>(static_cast<int>(ZRAND(wXScreen)) - static_cast<int>(wX2Screen))
                : 0;
@@ -361,7 +359,7 @@ GetDlgItemLongError:
   LPTSTR pszTemp;
 
   if (!GetPrivateProfileString(pszApp, pszKey, TEXT(""), szTemp, CharSizeOf(szTemp), szIniFile)) {
-    goto GetProfileLongError;
+    return lDefault;
   }
 
   szTemp[19] = TEXT('\0');
@@ -370,15 +368,12 @@ GetDlgItemLongError:
     lTemp = lTemp * 10l + static_cast<LONG>(*(pszTemp++) - TEXT('0'));
   }
   if (*pszTemp) {
-    goto GetProfileLongError;
+    return lDefault;
   }
   return lTemp;
-
-GetProfileLongError:
-  return lDefault;
 }
 
-VOID GetIniEntries(VOID) {
+void GetIniEntries() {
   LoadString(hMainInstance, idsName, szName, CharSizeOf(szName));
   LoadString(hMainInstance, idsAppName, szAppName, CharSizeOf(szAppName));
 
@@ -394,11 +389,15 @@ VOID GetIniEntries(VOID) {
     wWarpSpeed = MINWARP + ((MAXWARP - MINWARP) / 2);
   }
 
-  wDensity = static_cast<WORD>(GetPrivateProfileInt(szAppName, szDensity, DEF_DENSITY, szIniFile));
+  wDensity = static_cast<WORD>(GetPrivateProfileInt(szAppName, szDensity, DEFSTARS, szIniFile));
   if (wDensity > MAXSTARS) {
     wDensity = MAXSTARS;
   }
   if (wDensity < MINSTARS) {
     wDensity = MINSTARS;
   }
+}
+
+void ssrand(DWORD dwSeed) {
+  ::srand(static_cast<unsigned int>(dwSeed));
 }

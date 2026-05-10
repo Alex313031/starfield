@@ -7,10 +7,8 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
 
 WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst);
 
-VOID ssrand(DWORD dwSeed);
+void GetIniEntries();
 
-VOID CreateStar(WORD wIndex);
-
-VOID GetIniEntries(VOID);
+void ssrand(DWORD dwSeed);
 
 #endif // STARFIELD_STARFIELD_H_

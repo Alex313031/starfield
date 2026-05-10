@@ -3,6 +3,7 @@
 
 #include "framework.h"
 
+// ?
 #define SIZE  64
 #define SCOPE 256
 
@@ -11,18 +12,19 @@
 
 #define CLICKRANGE (MAXWARP - MINWARP) // Range for WarpSpeed scroll bar
 
-#define MINSTARS    10  // Minimum number of stars in field
-#define MAXSTARS    200 // Maximum number of stars in field
-#define DEF_DENSITY 25  // Default number of stars in field
+inline constexpr int MINSTARS = 1;   // Minimum number of stars in field
+inline constexpr int MAXSTARS = 200; // Maximum number of stars in field
+inline constexpr int DEFSTARS = 25;  // Default number of stars in field
 
 // Speec multiplier
-#define WARPFACTOR  10 // Warp Factor 10 Mr. Sulu!
+#define WARPFACTOR 10 // Warp Factor 10 Mr. Sulu!
 
 // Rand helper macros
 #define RAND(x)  ((rand() % (x)) + 1)
 #define ZRAND(x) (rand() % (x))
 
-#define MINTIMERSPEED 50 // Minimum window timer speed
+// Minimum window timer speed
+#define MINTIMERSPEED 50
 
 // Avoid divide by zero
 #define DIVIDE_SAFE(nNumber) ((0 == (nNumber)) ? 1 : (nNumber))
