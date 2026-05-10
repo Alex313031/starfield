@@ -5,7 +5,7 @@
 
 VOID CreateStar(WORD wIndex);
 
-[[maybe_unused]] LONG GetDlgItemLong(HWND hDlg, WORD wID, bool *pfTranslated, bool fSigned);
+[[maybe_unused]] LONG GetDlgItemLong(HWND hDlg, WORD wID, bool* pfTranslated, bool fSigned);
 
 VOID GetIniEntries(VOID);
 

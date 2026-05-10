@@ -3,6 +3,4 @@
 
 #include "resource.h"
 
-//#include "cphelp.h"
-
 #endif // STARFIELD_STRINGS_H_

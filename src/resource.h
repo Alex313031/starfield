@@ -1,3 +1,5 @@
+// clang-format off
+
 // Icons
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
@@ -35,6 +37,8 @@
 #ifndef IDC_STATIC
  #define IDC_STATIC      -1
 #endif // IDC_STATIC
+
+// clang-format on
 
 // Defined in scrnsave.h, but don't want to pull that in here.
 #ifndef WS_GT
