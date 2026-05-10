@@ -9,12 +9,6 @@
 // Strings
 #define idsName          200
 #define idsDescription   201
-//#define idsIniFile       202
-//#define idsScreenSaver   203
-//#define idsAppName       204
-//#define idsNoHelpMemory  205
-//#define idsHelpFile      206
-//#define idsDefKeyword		 207
 
 // Options
 #define ID_SPEED         300

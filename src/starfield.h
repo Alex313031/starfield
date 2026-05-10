@@ -3,18 +3,14 @@
 
 #include "framework.h"
 
-VOID CreateStar(WORD wIndex);
-
-[[maybe_unused]] LONG GetDlgItemLong(HWND hDlg, WORD wID, bool* pfTranslated, bool fSigned);
-
-VOID GetIniEntries(VOID);
-
-[[maybe_unused]] LONG GetPrivateProfileLong(LPTSTR pszApp, LPTSTR pszKey, LONG lDefault);
-
-VOID ssrand(DWORD dwSeed);
+WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst);
 
-WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+VOID ssrand(DWORD dwSeed);
+
+VOID CreateStar(WORD wIndex);
+
+VOID GetIniEntries(VOID);
 
 #endif // STARFIELD_STARFIELD_H_

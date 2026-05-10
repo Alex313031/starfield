@@ -21,6 +21,7 @@ executable("starfield") {
     "src/strings.h",
     "src/version.h",
   ]
+  output_name = "starfield-ng"
   # Use .scr, not .exe
   output_extension = "scr"
 }

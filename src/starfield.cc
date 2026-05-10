@@ -182,17 +182,16 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
   TCHAR szTemp[1025]; // Temporary string buffer (safe size for wsprintf)
 
   // static WORD wPause, wScroll;         // unused
-  static HWND hWarpSpeed, // window handle of Speed scrollbar
-      hIDOK,              // window handle of OK button
-      // hSetPassword,            // window handle of SetPassword button - unused
-      hDensity; // window handle of Density EditControl
+  static HWND hWarpSpeed; // window handle of Speed scrollbar
+  static HWND hIDOK;      // window handle of OK button
+  static HWND hDensity;   // window handle of Density EditControl
+  // HWND hSetPassword,       // window handle of SetPassword button - unused
 
-  // static WORD wIncScroll = 1;          // density spin button parameters - unused
-
-  // static WORD wStartScroll = 1;        // unused
-  // static WORD wStartPause = 1;         // unused
-  // static WORD wMaxScroll = 10;         // unused
-  // static WORD wPauseScroll = 20;       // unused
+  // static WORD wIncScroll = 1;    // density spin button parameters - unused
+  // static WORD wStartScroll = 1;  // unused
+  // static WORD wStartPause = 1;   // unused
+  // static WORD wMaxScroll = 10;   // unused
+  // static WORD wPauseScroll = 20; // unused
   static LONG lMinScroll = MINSTARS;
   static LONG lMaxScroll = MAXSTARS;
 

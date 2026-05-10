@@ -62,7 +62,7 @@ inline constexpr bool is_debug =
 #endif // defined(DEBUG) || defined(_DEBUG)
 
 #ifndef CharSizeOf
- #define CharSizeOf(s) (sizeof(s) / sizeof((s)[0]))
+ #define CharSizeOf(char_t) (sizeof(char_t) / sizeof((char_t)[0]))
 #endif // !CharSizeOf
 
 #endif // STARFIELD_FRAMEWORK_H_

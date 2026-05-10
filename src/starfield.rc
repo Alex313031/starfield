@@ -9,11 +9,15 @@
 IDI_MAIN  ICON  "res/stars.ico"
 IDI_SMALL ICON  "res/small.ico"
 
+#if defined(__MINGW32__) || defined(__clang__)
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res/starfield.manifest"
+#endif // __MINGW32__
+
 STRINGTABLE PRELOAD
 BEGIN
     idsDescription  "Starfield NG"
-    idsAppName      "Screen Saver.Starfield"
-    idsName         "Starfield"
+    idsAppName      "Starfield NG"
+    idsName         "Starfield NG"
     idsIniFile      "control.ini"
     idsScreenSaver  "ScreenSaver"
     idsHelpFile     "display.hlp"
