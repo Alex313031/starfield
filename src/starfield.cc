@@ -104,7 +104,7 @@ static HBRUSH g_hStarSwatch = nullptr;
 static HBRUSH g_hBkgSwatch  = nullptr;
 
 // Dialog procedure for the configuration dialog
-WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+BOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
   BOOL fError; // Error flag
 
   UINT wTemp; // temp int storage
@@ -281,9 +281,34 @@ WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam
 /* This procedure is called right before the dialog box above is created in
    order to register any child windows that are custom controls.  If no
    custom controls need to be registered, then simply return TRUE. */
-WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst) {
+BOOL WINAPI RegisterDialogClasses(HANDLE hInst) {
   InitCommonControls();
-  return true;
+  return TRUE;
+}
+
+/* Thanks to B. G. Edmond for writing these password functions. */
+BOOL WINAPI VerifyPassword(HWND hwnd) {   
+  OSVERSIONINFO osv;
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+  if (osv.dwPlatformId == VER_PLATFORM_WIN32_NT) {
+    return TRUE;
+  }
+  
+  HINSTANCE hpwdcpl = LoadLibrary(TEXT("PASSWORD.CPL"));
+  if (hpwdcpl == nullptr) {
+    return TRUE;
+  }
+  typedef BOOL (WINAPI *VERIFYSCREENSAVEPWD)(HWND hwnd);
+  VERIFYSCREENSAVEPWD VerifyScreenSavePwd;
+  VerifyScreenSavePwd = reinterpret_cast<VERIFYSCREENSAVEPWD>(GetProcAddress(hpwdcpl,"VerifyScreenSavePwd"));
+  if (VerifyScreenSavePwd == nullptr) {
+    FreeLibrary(hpwdcpl);
+    return TRUE;
+  }
+  BOOL passok = VerifyScreenSavePwd(hwnd);
+  FreeLibrary(hpwdcpl);
+  return passok;
 }
 
 bool SaveSettings(HWND hDlg, bool reset) {
@@ -304,7 +329,7 @@ bool SaveSettings(HWND hDlg, bool reset) {
     wDensity     = DEFSTARS;
     wWarpSpeed   = DEFWARP;
     g_star_color = RGB_STAR;
-    g_bkg_color  = RGB_BLACK;
+    g_bkg_color  = RGB_SPACE;
     SetDlgItemInt(hDlg, IDC_DENSITY, wDensity, FALSE);
     SetScrollPos(GetDlgItem(hDlg, IDC_SPEED), SB_CTL, wWarpSpeed, TRUE);
   }
@@ -355,7 +380,7 @@ static void GetIniEntries() {
   g_star_color = static_cast<COLORREF>(
       GetPrivateProfileInt(szAppName, szStarColor, RGB_STAR, szIniFile));
   g_bkg_color = static_cast<COLORREF>(
-      GetPrivateProfileInt(szAppName, szBkgColor, RGB_BLACK, szIniFile));
+      GetPrivateProfileInt(szAppName, szBkgColor, RGB_SPACE, szIniFile));
 }
 
 // Rebuild swatch brushes from the current g_*_color globals and force the

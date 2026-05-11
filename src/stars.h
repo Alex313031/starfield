@@ -9,6 +9,12 @@
 
 //clang-format on
 
+// Default star color
+#define RGB_STAR RGB_WHITE
+
+// Default background color
+#define RGB_SPACE RGB_BLACK
+
 // Out star and background ("space") colors
 extern COLORREF g_star_color;
 extern COLORREF g_bkg_color;

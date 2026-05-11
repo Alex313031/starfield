@@ -42,6 +42,4 @@ inline constexpr int MINTIMERSPEED = static_cast<int>(33.4f); // ~30 FPS
 #define RGB_CYAN    RGB(0, 255, 255)
 #define RGB_MAGENTA RGB(255, 0, 255)
 
-#define RGB_STAR RGB_WHITE
-
 #endif // STARFIELD_CONSTANTS_H_

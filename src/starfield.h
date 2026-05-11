@@ -23,10 +23,13 @@ static DWORD aStarsDlgHelpIds[] = {static_cast<DWORD>(IDC_STATIC),
                                    0};
 
 // Any Screensaver with configurable options needs this function
-WINBOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+BOOL WINAPI ScreenSaverConfigureDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 // Same for this
-WINBOOL WINAPI RegisterDialogClasses(HANDLE hInst);
+BOOL WINAPI RegisterDialogClasses(HANDLE hInst);
+
+// Password handling
+BOOL WINAPI VerifyPassword(HWND hwnd);
 
 // Saves our settings for next launch, if reset is true, settings are restored to defaults
 bool SaveSettings(HWND hDlg, bool reset = false);

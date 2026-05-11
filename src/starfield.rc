@@ -78,8 +78,8 @@ FONT 8, "MS Shell Dlg 2"
 BEGIN
     DEFPUSHBUTTON "&OK",                IDOK,               160, 8,  50, 14, WS_TABSTOP
     PUSHBUTTON "&Cancel",               IDCANCEL,           160, 26, 50, 14, WS_TABSTOP
-    PUSHBUTTON "&Preview",              IDC_PREVIEW,        160, 56, 50, 14, WS_TABSTOP
-    PUSHBUTTON "&Defaults",             IDC_DEFAULTS,       160, 90, 50, 14, WS_TABSTOP
+    PUSHBUTTON "&Defaults",             IDC_DEFAULTS,       160, 56, 50, 14, WS_TABSTOP
+    PUSHBUTTON "&Preview",              IDC_PREVIEW,        160, 90, 50, 14, WS_TABSTOP
 
     GROUPBOX "&Warp Speed",             IDC_STATIC,         4,   4,  150, 36
     LTEXT "Slower",                     IDC_SPEED_SLOW,     8,   16, 32,  14

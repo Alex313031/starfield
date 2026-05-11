@@ -12,8 +12,8 @@ LONG nZ[MAXSTARS];
 int STARSIZE     = 10;
 int MIN_STARSIZE = 1;
 
-COLORREF g_star_color = RGB_STAR; // Default star color is off white
-COLORREF g_bkg_color  = RGB_BLACK; // Default background color is black
+COLORREF g_star_color = RGB_STAR; // Default star color is white
+COLORREF g_bkg_color  = RGB_SPACE; // Default background color is black
 
 void DrawStars(HWND hWnd, WORD warpfactor) {
   if (hWnd == nullptr) {
